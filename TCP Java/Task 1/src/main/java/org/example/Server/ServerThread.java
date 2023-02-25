@@ -6,19 +6,21 @@ import org.example.TCP.MessageParse;
 import java.io.*;
 import java.net.Socket;
 
+import static java.lang.Math.min;
+
 public class ServerThread extends Thread {
     final DataInputStream dataInputStream;
     final DataOutputStream dataOutputStream;
     final Socket socket;
 
     int seqNo = 0, rwnd = 65535;
-    int ackNo;
+    int ackNo, totalSendByte = 0, totalSendPacket = 0;
 
     private void sendSynAck() throws IOException {
         byte[] data = new byte[0];
 
         MessageFormat messageFormat = new MessageFormat(3000, this.socket.getPort(), seqNo, 0, true, true, false, rwnd, 1460, data);
-        seqNo += 1;
+        // seqNo += 1;
 
         this.dataOutputStream.write(messageFormat.segment);
 
@@ -56,21 +58,27 @@ public class ServerThread extends Thread {
             fileInputStream.skip(seqNo);
             for (int i=0; i<(rwnd/MSS); i++){
 
-                if ((bytes = fileInputStream.read(buffer)) != -1) {
+                if ((bytes = fileInputStream.read(buffer, 0, MSS)) != -1) {
 
-//                fileInputStream.skip(seqNo*MSS);
-//                if(fileInputStream.read(buffer, seqNo*MSS, MSS) != -1) {
+                    byte[] data = new byte[min(bytes, MSS)];
+                    System.arraycopy(buffer, 0, data, 0, data.length);
+
                     // Send the file to Server Socket
-                    MessageFormat messageFormat = new MessageFormat(3000, this.socket.getPort(), seqNo, ackNo, false, false, false, rwnd, MSS, buffer);
-                    seqNo += MSS; fileInputStream.skip(MSS);
+                    MessageFormat messageFormat = new MessageFormat(3000, this.socket.getPort(), seqNo, ackNo, false, false, false, rwnd, MSS, data);
+                    seqNo += min(bytes, MSS);
+
+                    totalSendByte += data.length;
+                    totalSendPacket += 1;
 
                     this.dataOutputStream.write(messageFormat.segment, 0, messageFormat.segment.length);
-//                    this.dataOutputStream.flush();
+                    this.dataOutputStream.flush();
 
                     MessageParse dataMessage = new MessageParse(messageFormat.segment);
                     dataMessage.print();
                 }
                 else{
+//                    System.out.println("TOTAL SEND " + totalSendByte);
+//                    System.out.println("TOTAL SEND PACKET " + totalSendPacket);
                     sendFin();
                     break;
                 }
@@ -82,8 +90,6 @@ public class ServerThread extends Thread {
             dataOutputStream.writeLong(0);
         }
     }
-
-
 
     // Constructor
     public ServerThread(Socket socket, DataInputStream dataInputStream, DataOutputStream dataOutputStream)

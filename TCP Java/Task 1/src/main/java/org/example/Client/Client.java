@@ -71,7 +71,7 @@ public class Client {
             FileOutputStream fileOutputStream = new FileOutputStream("Received image.jpg");
             byte[] buffer = new byte[BUFFER_SIZE];
 
-            boolean finFlag = false; int i = 0;
+            boolean finFlag = false; int i = 0, totalRecievedByte = 0, totalRcvdPacket = 0;
             while(true) {
                 /* DATA RCV SESSION START */
 
@@ -86,16 +86,21 @@ public class Client {
 
                     ackNo = message.seqNo();
                     if (message.isFin()) finFlag = true;
+                    else {
 
-                   /* WRITE TO FILE */
-                    fileOutputStream.write(message.data());
-
-
+                        totalRecievedByte += message.data().length;
+                        totalRcvdPacket += 1;
+                        /* WRITE TO FILE */
+                        fileOutputStream.write(message.data());
+                    }
                     i = i+1;
                 }
 
                 /* ACK */
                 if(finFlag){
+                    fileOutputStream.close();
+//                    System.out.println("TOTAL RCVD BYTE "  + totalRecievedByte);
+//                    System.out.println("TOTAL RCVD PACKET "  + totalRcvdPacket);
                     // sendAck(socket, dis, dos);
                     /* FIN */
                     sendFin(socket, dis, dos);
