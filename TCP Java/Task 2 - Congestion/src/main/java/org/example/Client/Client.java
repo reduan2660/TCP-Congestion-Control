@@ -17,7 +17,7 @@ public class Client {
     static int SERVER_PORT = 3000, MSS = 1460, seqNo = 0, ackNo = 0, BUFFER_SIZE = 32000;
     static int RWND = BUFFER_SIZE;
 
-    private static final int packetLossThreshold = 10; /* in (%) */
+    private static final int packetLossThreshold = 0; /* in (%) */
 
     private static int rrandom(){
         Random random = new Random();
@@ -168,10 +168,12 @@ public class Client {
             }
 
             System.out.println("CONNECTION CLOSE");
-            System.out.println("LOGS _____________");
+            System.out.println("--------- LOGS ---------");
             long endTime = System.nanoTime();
             long duration = (endTime - startTime);
             double seconds = (double)duration / 1_000_000_000.0;
+
+            System.out.println("PACKET LOSS THRESHOLD % : " + packetLossThreshold);
 
             System.out.println("Time difference in seconds: " + seconds);
             System.out.println("TOTAL RCVD BYTE "  + totalRecievedByte);

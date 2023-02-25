@@ -73,7 +73,7 @@ public class MessageParse {
         if(isAck()) System.out.print(" [ACK] ");
         if(isFin()) System.out.print(" [FIN] ");
         System.out.print("| ");
-        System.out.print( "LEN = " + segment.length  + " SEQ = " + seqNo() + "  ACK = " + ackNo() + " RWND = " + rwnd());
+        System.out.print( "LEN = " + segment.length  + " SEQ = " + seqNo() + "  ACK = " + ackNo() + " RWND = " + rwnd() + " MSS = " + mss());
 
         System.out.println();
     }

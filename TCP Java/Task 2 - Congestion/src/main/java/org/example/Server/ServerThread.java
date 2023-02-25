@@ -122,8 +122,6 @@ public class ServerThread extends Thread {
                     MessageParse message = new MessageParse(packet);
                     ackNo = message.ackNo();
 
-
-
                     /* SYN */
                     if (message.isSyn()) {
                         message.print();
@@ -178,7 +176,8 @@ public class ServerThread extends Thread {
 
             System.out.println("CONNECTION CLOSE");
             System.out.println("LOGS ------------------");
-
+            System.out.println("TOTAL PACKET SENT: " + totalSendPacket);
+            System.out.println("TOTAL BYTE SENT: " + totalSendByte);
 //            for (Integer sentPacket : logSentPacket) System.out.print( "( " + totalSendPacket + " , " + sentPacket + "), ");
             for(int i=0; i< logSentPacket.size(); i++ ){
                 System.out.print( "( " + i + " , " + logSentPacket.get(i) + "), ");
